@@ -21,12 +21,12 @@ GOSPER_GLIDER_GUN = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ]
 
-LIFE_STATUS_CODE = {
-    'DEAD': 0,
-    'BORD': 1,
-    'LIVE': 2,
-    'DIED': 3
-    }
+#LIFE_STATUS_CODE = {
+#    'DEAD': 0,
+#    'BORD': 1,
+#    'LIVE': 2,
+#    'DIED': 3
+#    }
 
 LIFE_COLOR = {
     0: (0, 0, 0),
@@ -35,10 +35,10 @@ LIFE_COLOR = {
     3: (255, 0, 0)
     }
 
-CELLS_X = 80
-CELLS_Y = 80
+CELLS_X = 50
+CELLS_Y = 50
 
-CELL_SIZE_PX = 10
+CELL_SIZE_PX = 5
 
 WIN_SIZE_X = CELLS_X * CELL_SIZE_PX
 WIN_SIZE_Y = CELLS_Y * CELL_SIZE_PX
@@ -89,15 +89,20 @@ def get_nb_neighbours(board, x, y) -> int:
 
 
 def main():
-    board = [[0 for x in range(CELLS_X)] for y in range(CELLS_Y)]
 
-    insert_figure(board, GOSPER_GLIDER_GUN, 0, 0)
-    insert_figure(board, GOSPER_GLIDER_GUN, 0, 40)
+    _tmp = [0 for x in range(CELLS_X)]
+
+    board = [list(_tmp) for y in range(CELLS_Y)]
+    new_board = [list(_tmp) for y in range(CELLS_Y)]
+
     #insert_figure(board, GLIDER, 0, 0)
-    iteration = 0
+    insert_figure(board, GOSPER_GLIDER_GUN, 0, 0)
+    #insert_figure(board, GOSPER_GLIDER_GUN, 0, 40)
 
+    iteration = 0
+    
     while FOR_EVER_AND_EVER:
-        new_board = [[0 for x in range(CELLS_X)] for y in range(CELLS_Y)]
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
@@ -105,33 +110,39 @@ def main():
         loop_start = time.time()
         for y in range(CELLS_Y):
             for x in range(CELLS_X):
-                neighbours = get_nb_neighbours(board, x, y)
 
-                if not board[y][x] and not neighbours:
-                    pass
-                elif board[y][x] in (1, 2) and (neighbours < 2 or neighbours > 3):
+                neighbours = get_nb_neighbours(board, x, y)
+                curr_stat = board[y][x]
+
+                if curr_stat in (1, 2) and (neighbours < 2 or neighbours > 3):
                     new_board[y][x] = 3
-                elif board[y][x] in (1, 2) and neighbours in (2, 3):
+                elif curr_stat in (1, 2) and neighbours in (2, 3):
                     new_board[y][x] = 2
-                elif board[y][x] in (0, 3) and neighbours == 3:
+                elif curr_stat in (0, 3) and neighbours == 3:
                     new_board[y][x] = 1
-                elif board[y][x] == 3:
+                elif curr_stat == 3:
                     new_board[y][x] = 0
+                else:
+                    new_board[y][x] = curr_stat
 
         draw_board(new_board)
         screen.blit(font.render("Iteration {}".format(iteration), False, (255, 255, 255)), (0, 0))
         pygame.display.update()
+
         print("Iteration {}. Took {:2f}s".format(iteration, time.time() - loop_start))
-        board = list(new_board)
+
+        board = [list(col) for col in new_board]
+
         iteration += 1
 
 if __name__ == "__main__":
     pygame.init()
-    #clock = pygame.time.Clock()
-    #clock.tick(30)
     pygame.font.init()
+
     font = pygame.font.SysFont("monospace", 12)
     screen = pygame.display.set_mode((WIN_SIZE_X, WIN_SIZE_Y))
+
     main()
+
     pygame.font.quit()
     pygame.quit()
