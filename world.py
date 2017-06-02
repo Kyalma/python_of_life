@@ -1,5 +1,7 @@
 import concurrent.futures
 
+from collections import defaultdict
+
 import settings
 
 class World(object):
@@ -14,10 +16,10 @@ class World(object):
         ## For threading purpose ##
         self._neighbours_map = [list(self.__tmp) for y in range(settings.CELLS_Y)]
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=settings.THREADS)
-
-
-    def is_alive(self, cell_status: int):
-        return (1 if cell_status else 0)
+        self.d = dict()
+        self.d[0] = 0
+        self.d[1] = 1
+        self.d[2] = 1
 
 
     def apply_rule(self, x: int, y: int) -> None:
@@ -25,29 +27,30 @@ class World(object):
         self._neighbours_map[y][x] = 0
 
         ## Upper neighbours ##
-        self._neighbours_map[y][x] += self.is_alive(self.map[(y - 1 if y - 1 >= 0 else settings.CELLS_Y - 1)][(x - 1 if x - 1 >= 0 else settings.CELLS_X - 1)])
-        self._neighbours_map[y][x] += self.is_alive(self.map[(y - 1 if y - 1 >= 0 else settings.CELLS_Y - 1)][x])
-        self._neighbours_map[y][x] += self.is_alive(self.map[(y - 1 if y - 1 >= 0 else settings.CELLS_Y - 1)][(x + 1 if x + 1 < settings.CELLS_X else 0)])
+        self._neighbours_map[y][x] += self.d[self.map[y - 1][x - 1]]
+        self._neighbours_map[y][x] += self.d[self.map[y - 1][x]]
+        self._neighbours_map[y][x] += self.d[self.map[y - 1][(x + 1) % settings.CELLS_X]]
 
         ## Left and Right neighbours ##
-        self._neighbours_map[y][x] += self.is_alive(self.map[y][(x - 1 if x - 1 >= 0 else settings.CELLS_X - 1)])
-        self._neighbours_map[y][x] += self.is_alive(self.map[y][(x + 1 if x + 1 < settings.CELLS_X else 0)])
+        self._neighbours_map[y][x] += self.d[self.map[y][x - 1]]
+        self._neighbours_map[y][x] += self.d[self.map[y][(x + 1) % settings.CELLS_X]]
 
         ## Lower neighbours ##
-        self._neighbours_map[y][x] += self.is_alive(self.map[(y + 1 if y + 1 < settings.CELLS_Y else 0)][(x - 1 if x - 1 >= 0 else settings.CELLS_X - 1)])
-        self._neighbours_map[y][x] += self.is_alive(self.map[(y + 1 if y + 1 < settings.CELLS_Y else 0)][x])
-        self._neighbours_map[y][x] += self.is_alive(self.map[(y + 1 if y + 1 < settings.CELLS_Y else 0)][(x + 1 if x + 1 < settings.CELLS_X else 0)])
+        self._neighbours_map[y][x] += self.d[self.map[(y + 1) % settings.CELLS_Y][x - 1]]
+        self._neighbours_map[y][x] += self.d[self.map[(y + 1) % settings.CELLS_Y][x]]
+        self._neighbours_map[y][x] += self.d[self.map[(y + 1) % settings.CELLS_Y][(x + 1) % settings.CELLS_X]]
+
 
         ## Original Conway's Game of Life rules ##
-        if self.map[y][x] != 0 and (self._neighbours_map[y][x] < 2 or self._neighbours_map[y][x] > 3):
-            self._next_map[y][x] = 0
-        elif self.map[y][x] != 0 and self._neighbours_map[y][x] in (2, 3):
-            self._next_map[y][x] = 2
-        elif self.map[y][x] == 0 and self._neighbours_map[y][x] == 3:
+        if self.map[y][x] != 0:
+            if self._neighbours_map[y][x] not in (2, 3):
+                self._next_map[y][x] = 0
+            elif self._neighbours_map[y][x] in (2, 3):
+                self._next_map[y][x] = 2
+        elif self._neighbours_map[y][x] == 3:
             self._next_map[y][x] = 1
         else:
             self._next_map[y][x] = self.map[y][x]
-        return
         
 
     def spawn(self, entities: list) -> None:
