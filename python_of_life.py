@@ -64,6 +64,7 @@ def insert_figure(board, figure, x1, y1) -> None:
         for x2 in range(len(figure[y2])):
             board[y1 + y2][x1 + x2] = figure[y2][x2]
 
+
 def local_is_alive(cell_status: int):
     return (1 if cell_status in (1, 2) else 0)
 
@@ -96,6 +97,7 @@ def local_apply_rule(board, x: int, y: int) -> None:
 
     ## if there is no rules to apply ##
     return board[y][x]
+
 
 def thread_main():
 
@@ -164,7 +166,7 @@ if __name__ == "__main__":
     font = pygame.font.SysFont("monospace", 12)
     screen = pygame.display.set_mode((settings.WIN_SIZE_X, settings.WIN_SIZE_Y))
 
-    process_main()
+    thread_main()
 
     pygame.font.quit()
     pygame.quit()
