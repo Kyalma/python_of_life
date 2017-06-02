@@ -30,14 +30,12 @@ GOSPER_GLIDER_GUN = [
 #    'DEAD': 0,
 #    'BORD': 1,
 #    'LIVE': 2,
-#    'DIED': 3 
 #    }
 
 LIFE_COLOR = {
     0: (0, 0, 0),
-    1: (0, 255, 0),
+    1: (0, 255, 255),
     2: (255, 255, 0),
-    3: (255, 0, 0)
     }
 
 FOR_EVER_AND_EVER = True
@@ -89,14 +87,12 @@ def local_apply_rule(board, x: int, y: int) -> None:
     total += local_is_alive(board[(y + 1 if y + 1 < settings.CELLS_Y else 0)][(x + 1 if x + 1 < settings.CELLS_X else 0)])
 
     ## Original Conway's Game of Life rules ##
-    if board[y][x] in (1, 2) and (total < 2 or total > 3):
-        return 3
-    elif board[y][x] in (1, 2) and total in (2, 3):
-        return 2
-    elif board[y][x] in (0, 3) and total == 3:
-        return 1
-    elif board[y][x] == 3:
+    if board[y][x] != 0 and (total < 2 or total > 3):
         return 0
+    elif board[y][x] != 0 and total in (2, 3):
+        return 2
+    elif board[y][x] == 0 and total == 3:
+        return 1
 
     ## if there is no rules to apply ##
     return board[y][x]
@@ -168,7 +164,7 @@ if __name__ == "__main__":
     font = pygame.font.SysFont("monospace", 12)
     screen = pygame.display.set_mode((settings.WIN_SIZE_X, settings.WIN_SIZE_Y))
 
-    thread_main()
+    process_main()
 
     pygame.font.quit()
     pygame.quit()

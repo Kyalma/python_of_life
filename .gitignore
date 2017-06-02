@@ -6,3 +6,4 @@
 /.vs
 /python_of_life.pyproj
 /python_of_life.sln
+/__pycache__

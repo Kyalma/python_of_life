@@ -17,7 +17,7 @@ class World(object):
 
 
     def is_alive(self, cell_status: int):
-        return (1 if cell_status in (1, 2) else 0)
+        return (1 if cell_status else 0)
 
 
     def apply_rule(self, x: int, y: int) -> None:
@@ -39,14 +39,12 @@ class World(object):
         self._neighbours_map[y][x] += self.is_alive(self.map[(y + 1 if y + 1 < settings.CELLS_Y else 0)][(x + 1 if x + 1 < settings.CELLS_X else 0)])
 
         ## Original Conway's Game of Life rules ##
-        if self.map[y][x] in (1, 2) and (self._neighbours_map[y][x] < 2 or self._neighbours_map[y][x] > 3):
-            self._next_map[y][x] = 3
-        elif self.map[y][x] in (1, 2) and self._neighbours_map[y][x] in (2, 3):
-            self._next_map[y][x] = 2
-        elif self.map[y][x] in (0, 3) and self._neighbours_map[y][x] == 3:
-            self._next_map[y][x] = 1
-        elif self.map[y][x] == 3:
+        if self.map[y][x] != 0 and (self._neighbours_map[y][x] < 2 or self._neighbours_map[y][x] > 3):
             self._next_map[y][x] = 0
+        elif self.map[y][x] != 0 and self._neighbours_map[y][x] in (2, 3):
+            self._next_map[y][x] = 2
+        elif self.map[y][x] == 0 and self._neighbours_map[y][x] == 3:
+            self._next_map[y][x] = 1
         else:
             self._next_map[y][x] = self.map[y][x]
         return
