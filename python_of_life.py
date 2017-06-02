@@ -1,8 +1,13 @@
 import pygame
+import concurrent.futures
 import time
 import sys
 import numpy
 
+
+import world
+import settings
+    
 GLIDER = [
     [0, 0, 1],
     [1, 0, 1],
@@ -25,7 +30,7 @@ GOSPER_GLIDER_GUN = [
 #    'DEAD': 0,
 #    'BORD': 1,
 #    'LIVE': 2,
-#    'DIED': 3
+#    'DIED': 3 
 #    }
 
 LIFE_COLOR = {
@@ -35,27 +40,19 @@ LIFE_COLOR = {
     3: (255, 0, 0)
     }
 
-CELLS_X = 50
-CELLS_Y = 50
-
-CELL_SIZE_PX = 5
-
-WIN_SIZE_X = CELLS_X * CELL_SIZE_PX
-WIN_SIZE_Y = CELLS_Y * CELL_SIZE_PX
-
 FOR_EVER_AND_EVER = True
 
 
 def draw_board(board):
     screen.fill((0, 0, 0))
-    for y in range(CELLS_Y):
-        for x in range(CELLS_X):
+    for y in range(settings.CELLS_Y):
+        for x in range(settings.CELLS_X):
             if board[y][x]:
                 pygame.draw.rect(
                     screen,
                     LIFE_COLOR[board[y][x]],
-                    (x * CELL_SIZE_PX, y * CELL_SIZE_PX, CELL_SIZE_PX,  \
-                     CELL_SIZE_PX),
+                    (x * settings.CELL_SIZE_PX, y * settings.CELL_SIZE_PX, settings.CELL_SIZE_PX,  \
+                     settings.CELL_SIZE_PX),
                     0)
     pygame.display.update()
 
@@ -69,80 +66,109 @@ def insert_figure(board, figure, x1, y1) -> None:
         for x2 in range(len(figure[y2])):
             board[y1 + y2][x1 + x2] = figure[y2][x2]
 
+def local_is_alive(cell_status: int):
+    return (1 if cell_status in (1, 2) else 0)
 
-def is_alive(cell) -> int:
-    return (1 if cell in (1, 2) else 0)
 
-def get_nb_neighbours(board, x, y) -> int:
+def local_apply_rule(board, x: int, y: int) -> None:
+    ## Reset for the current generation ##
     total = 0
-    total += is_alive(board[(y - 1 if y - 1 >= 0 else CELLS_Y - 1)][(x - 1 if x - 1 >= 0 else CELLS_X - 1)])
-    total += is_alive(board[(y - 1 if y - 1 >= 0 else CELLS_Y - 1)][x])
-    total += is_alive(board[(y - 1 if y - 1 >= 0 else CELLS_Y - 1)][(x + 1 if x + 1 < CELLS_X else 0)])
 
-    total += is_alive(board[y][(x - 1 if x - 1 >= 0 else CELLS_X - 1)])
-    total += is_alive(board[y][(x + 1 if x + 1 < CELLS_X else 0)])
+    ## Upper neighbours ##
+    total += local_is_alive(board[(y - 1 if y - 1 >= 0 else settings.CELLS_Y - 1)][(x - 1 if x - 1 >= 0 else settings.CELLS_X - 1)])
+    total += local_is_alive(board[(y - 1 if y - 1 >= 0 else settings.CELLS_Y - 1)][x])
+    total += local_is_alive(board[(y - 1 if y - 1 >= 0 else settings.CELLS_Y - 1)][(x + 1 if x + 1 < settings.CELLS_X else 0)])
 
-    total += is_alive(board[(y + 1 if y + 1 < CELLS_Y else 0)][(x - 1 if x - 1 >= 0 else CELLS_X - 1)])
-    total += is_alive(board[(y + 1 if y + 1 < CELLS_Y else 0)][x])
-    total += is_alive(board[(y + 1 if y + 1 < CELLS_Y else 0)][(x + 1 if x + 1 < CELLS_X else 0)])
-    return total
+    ## Left and Right neighbours ##
+    total += local_is_alive(board[y][(x - 1 if x - 1 >= 0 else settings.CELLS_X - 1)])
+    total += local_is_alive(board[y][(x + 1 if x + 1 < settings.CELLS_X else 0)])
 
+    ## Lower neighbours ##
+    total += local_is_alive(board[(y + 1 if y + 1 < settings.CELLS_Y else 0)][(x - 1 if x - 1 >= 0 else settings.CELLS_X - 1)])
+    total += local_is_alive(board[(y + 1 if y + 1 < settings.CELLS_Y else 0)][x])
+    total += local_is_alive(board[(y + 1 if y + 1 < settings.CELLS_Y else 0)][(x + 1 if x + 1 < settings.CELLS_X else 0)])
 
-def main():
+    ## Original Conway's Game of Life rules ##
+    if board[y][x] in (1, 2) and (total < 2 or total > 3):
+        return 3
+    elif board[y][x] in (1, 2) and total in (2, 3):
+        return 2
+    elif board[y][x] in (0, 3) and total == 3:
+        return 1
+    elif board[y][x] == 3:
+        return 0
 
-    _tmp = [0 for x in range(CELLS_X)]
+    ## if there is no rules to apply ##
+    return board[y][x]
 
-    board = [list(_tmp) for y in range(CELLS_Y)]
-    new_board = [list(_tmp) for y in range(CELLS_Y)]
+def thread_main():
 
-    #insert_figure(board, GLIDER, 0, 0)
-    insert_figure(board, GOSPER_GLIDER_GUN, 0, 0)
-    #insert_figure(board, GOSPER_GLIDER_GUN, 0, 40)
+    game = world.World()
+    game.spawn(
+        [
+            (GOSPER_GLIDER_GUN, 0, 0),
+            (GOSPER_GLIDER_GUN, 0, 20)
+        ])
 
-    iteration = 0
-    
     while FOR_EVER_AND_EVER:
         
+        loop_start = time.time()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
 
-        loop_start = time.time()
-        for y in range(CELLS_Y):
-            for x in range(CELLS_X):
+        game.populate()
 
-                neighbours = get_nb_neighbours(board, x, y)
-                curr_stat = board[y][x]
+        draw_board(game.map)
 
-                if curr_stat in (1, 2) and (neighbours < 2 or neighbours > 3):
-                    new_board[y][x] = 3
-                elif curr_stat in (1, 2) and neighbours in (2, 3):
-                    new_board[y][x] = 2
-                elif curr_stat in (0, 3) and neighbours == 3:
-                    new_board[y][x] = 1
-                elif curr_stat == 3:
-                    new_board[y][x] = 0
-                else:
-                    new_board[y][x] = curr_stat
-
-        draw_board(new_board)
-        screen.blit(font.render("Iteration {}".format(iteration), False, (255, 255, 255)), (0, 0))
+        screen.blit(font.render("Iteration {}".format(game.ticks), False, (255, 255, 255)), (0, 0))
         pygame.display.update()
 
-        print("Iteration {}. Took {:2f}s".format(iteration, time.time() - loop_start))
+        print("Iteration {}. Took {:2f}s".format(game.ticks, time.time() - loop_start))
 
-        board = [list(col) for col in new_board]
 
-        iteration += 1
+def process_main():
+    ## In progress ##
+    tmp = [[0 for x in range(settings.CELLS_X)] for y in range(settings.CELLS_Y)]
+
+    insert_figure(tmp, GOSPER_GLIDER_GUN, 0, 0)
+    insert_figure(tmp, GOSPER_GLIDER_GUN, 0, 20)
+
+    process_executor = concurrent.futures.ProcessPoolExecutor(max_workers=settings.PROCESS)
+    
+    while FOR_EVER_AND_EVER:
+        
+        loop_start = time.time()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+
+        process_start = time.time()
+        tasks = [
+            process_executor.submit(local_apply_rule, tmp, x, y) for x in range(settings.CELLS_X) for y in range(settings.CELLS_Y)
+            ]
+        concurrent.futures.wait(tasks)
+        print(time.time() - process_start)
+
+        for y in range(settings.CELLS_Y):
+            for x in range(settings.CELLS_X):
+                tmp[x][y] = tasks[y * settings.CELLS_X + x]._result
+
+        draw_board(tmp)
+
+        print("Iteration {}. Took {:2f}s".format(0, time.time() - loop_start))
+
 
 if __name__ == "__main__":
     pygame.init()
     pygame.font.init()
 
     font = pygame.font.SysFont("monospace", 12)
-    screen = pygame.display.set_mode((WIN_SIZE_X, WIN_SIZE_Y))
+    screen = pygame.display.set_mode((settings.WIN_SIZE_X, settings.WIN_SIZE_Y))
 
-    main()
+    thread_main()
 
     pygame.font.quit()
     pygame.quit()
