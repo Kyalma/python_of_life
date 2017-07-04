@@ -14,16 +14,19 @@ import entities
 
 
 def dump_board(board):
-    print('\n'.join(''.join(str(x) for x in y) for y in board))
+    print('\n'.join(' '.join(str(x) for x in y) for y in board))
+    print('-' * (len(board[0]) * 2 - 1))
 
 def main_test(args):
     game = world.World()
     game.spawn([
         (entities.LINE_OF_20, 0, 10)
         ])
+    print("Seed:")
     dump_board(game.map)
-    for _ in range(args.gen):
+    for iter in range(args.gen):
         game.populate()
+        print("Generation n°{}:".format(iter + 1))
         dump_board(game.map)
     return 0
 
