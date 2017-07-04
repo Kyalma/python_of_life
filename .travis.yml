@@ -3,5 +3,4 @@ python:
     - "3.6"
 	- "3.5"
 script:
-    - python3 test/test_populate.py
-
+    - python3 test/test_populate.py -gen 10
