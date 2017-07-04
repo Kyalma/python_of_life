@@ -1,6 +1,15 @@
+"""
+Test script for Travis CI
+"""
 
-import world
+import sys
+import os
+
+sys.path.append(os.path.abspath('./'))
+
+from gameoflife import world
 import entities
+
 
 def dump_board(board):
     print('\n'.join(''.join(str(x) for x in y) for y in board))
