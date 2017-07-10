@@ -60,10 +60,12 @@ def thread_main():
                 return
         
         if not game.paused:
+            t_time = time.time()
             game.populate()
             ui.display_life(game.map)
+            print(time.time() - t_time)
             
-        time.sleep(0.1)
+        ui.delay()
 
         #print("Iteration {}. Took {:2f}s".format(game.ticks, time.time() - loop_start))
 

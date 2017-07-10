@@ -1,60 +1,73 @@
-import concurrent.futures
+"""
+Class definition
+"""
 
-from collections import defaultdict
+import concurrent.futures
 
 import settings
 
 class World(object):
+    """
+    Game of life content
+    """
 
-    def __init__(self, **kwargs):
+    def __init__(self):
+        """
+        init
+        """
         self.ticks = 0
 
         self.__tmp = [0 for x in range(settings.CELLS_X)]
-        self.map = [list(self.__tmp) for y in range (settings.CELLS_Y)]
+        self.map = [list(self.__tmp) for y in range(settings.CELLS_Y)]
         self._next_map = [list(self.__tmp) for y in range(settings.CELLS_Y)]
 
         ## For threading purpose ##
-        self._neighbours_map = [list(self.__tmp) for y in range(settings.CELLS_Y)]
+        self._neighbours = [list(self.__tmp) for y in range(settings.CELLS_Y)]
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=settings.THREADS)
-        self.d = dict()
-        self.d[0] = 0
-        self.d[1] = 1
-        self.d[2] = 1
+        self.value = dict()
+        self.value[0] = 0
+        self.value[1] = 1
+        self.value[2] = 1
         self.paused = True
 
 
     def apply_rule(self, x: int, y: int) -> None:
+        """
+        apply the game of life rules at a given position
+        """
         ## Reset for the current generation ##
-        self._neighbours_map[y][x] = 0
+        self._neighbours[y][x] = 0
 
         ## Upper neighbours ##
-        self._neighbours_map[y][x] += self.d[self.map[y - 1][x - 1]]
-        self._neighbours_map[y][x] += self.d[self.map[y - 1][x]]
-        self._neighbours_map[y][x] += self.d[self.map[y - 1][(x + 1) % settings.CELLS_X]]
+        self._neighbours[y][x] += self.value[self.map[y - 1][x - 1]]
+        self._neighbours[y][x] += self.value[self.map[y - 1][x]]
+        self._neighbours[y][x] += self.value[self.map[y - 1][(x + 1) % settings.CELLS_X]]
 
         ## Left and Right neighbours ##
-        self._neighbours_map[y][x] += self.d[self.map[y][x - 1]]
-        self._neighbours_map[y][x] += self.d[self.map[y][(x + 1) % settings.CELLS_X]]
+        self._neighbours[y][x] += self.value[self.map[y][x - 1]]
+        self._neighbours[y][x] += self.value[self.map[y][(x + 1) % settings.CELLS_X]]
 
         ## Lower neighbours ##
-        self._neighbours_map[y][x] += self.d[self.map[(y + 1) % settings.CELLS_Y][x - 1]]
-        self._neighbours_map[y][x] += self.d[self.map[(y + 1) % settings.CELLS_Y][x]]
-        self._neighbours_map[y][x] += self.d[self.map[(y + 1) % settings.CELLS_Y][(x + 1) % settings.CELLS_X]]
-
+        self._neighbours[y][x] += self.value[self.map[(y + 1) % settings.CELLS_Y][x - 1]]
+        self._neighbours[y][x] += self.value[self.map[(y + 1) % settings.CELLS_Y][x]]
+        self._neighbours[y][x] += self.value[self.map[(y + 1) % settings.CELLS_Y][(x + 1) % settings.CELLS_X]]
 
         ## Original Conway's Game of Life rules ##
         if self.map[y][x] != 0:
-            if self._neighbours_map[y][x] not in (2, 3):
+            if self._neighbours[y][x] not in (2, 3):
                 self._next_map[y][x] = 0
-            elif self._neighbours_map[y][x] in (2, 3):
+            elif self._neighbours[y][x] in (2, 3):
                 self._next_map[y][x] = 2
-        elif self._neighbours_map[y][x] == 3:
+        elif self._neighbours[y][x] == 3:
             self._next_map[y][x] = 1
-        else:
-            self._next_map[y][x] = self.map[y][x]
-        
+        #else:
+        #    self._next_map[y][x] = self.map[y][x]
+
 
     def spawn(self, entities: list) -> None:
+        """
+        insert an entity at the given position
+        """
         for entity, x, y in entities:
             for y2 in range(len(entity)):
                 for x2 in range(len(entity[y2])):
@@ -62,11 +75,17 @@ class World(object):
 
 
     def tick(self):
+        """
+        count ticks
+        """
         print("tack!")
         self.ticks += 1
 
 
     def populate(self):
+        """
+        Generate the next iteration of population
+        """
         tasks = [
             self.executor.submit(self.apply_rule, x, y) for x in range(settings.CELLS_X) for y in range(settings.CELLS_Y)
             ]

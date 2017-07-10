@@ -21,8 +21,7 @@ class UIcontroller(object):
         pygame.draw.rect(
             self.screen,
             0xAAAAAA,
-            (0, SANDBOX_SY,
-             WIN_SX, ACTION_BOX_H),
+            (0, SANDBOX_SY, WIN_SX, ACTION_BOX_H),
             0)
         pygame.display.update()
         text = self.font.render("Click here to pause/resume",
@@ -33,6 +32,7 @@ class UIcontroller(object):
             (int(WIN_SX / 2 - text.get_width() / 2),
              int(SANDBOX_SX + ACTION_BOX_H / 2 - text.get_height() / 2)))
         pygame.display.update()
+        self.loop_ms = 100
 
 
     def display_life(self, board):
@@ -43,10 +43,18 @@ class UIcontroller(object):
                     pygame.draw.rect(
                         self.screen,
                         colors.LIFE_COLOR[board[y][x]],
-                        (x * CELL_SPX, y * CELL_SPX, CELL_SPX,  \
-                            CELL_SPX),
+                        (x * CELL_SPX, y * CELL_SPX, CELL_SPX, CELL_SPX),
                         0)
         pygame.display.update()
+
+
+    def delay(self, **kwargs):
+        if 's' in kwargs:
+            pygame.time.delay(kwargs['s'] * 1000)
+        elif 'ms' in kwargs:
+            pygame.time.delay(kwargs['ms'])
+        else:
+            pygame.time.delay(self.loop_ms)
 
 
     def __del__(self):
