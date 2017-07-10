@@ -16,21 +16,21 @@ class UIcontroller(object):
         pygame.font.init()
         self.font = pygame.font.SysFont("Arial", 15)
         self.screen = pygame.display.set_mode(
-            (WIN_SIZE_X, WIN_SIZE_Y))
+            (WIN_SX, WIN_SY))
         pygame.display.set_caption("Python of life")
         pygame.draw.rect(
             self.screen,
             0xAAAAAA,
             (0, SANDBOX_SY,
-             WIN_SIZE_X, ACTION_BOX_H),
+             WIN_SX, ACTION_BOX_H),
             0)
         pygame.display.update()
-        text = self.font.render("Press here to pause/resume",
+        text = self.font.render("Click here to pause/resume",
                                 False,
                                 colors.RGBA['black'])
         self.screen.blit(
             text,
-            (int(WIN_SIZE_X / 2 - text.get_width() / 2),
+            (int(WIN_SX / 2 - text.get_width() / 2),
              int(SANDBOX_SX + ACTION_BOX_H / 2 - text.get_height() / 2)))
         pygame.display.update()
 
@@ -43,8 +43,8 @@ class UIcontroller(object):
                     pygame.draw.rect(
                         self.screen,
                         colors.LIFE_COLOR[board[y][x]],
-                        (x * CELL_SIZE_PX, y * CELL_SIZE_PX, CELL_SIZE_PX,  \
-                            CELL_SIZE_PX),
+                        (x * CELL_SPX, y * CELL_SPX, CELL_SPX,  \
+                            CELL_SPX),
                         0)
         pygame.display.update()
 

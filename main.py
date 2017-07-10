@@ -33,39 +33,36 @@ def thread_main():
     game = world.World()
     game.spawn(
         [
+            (entities.GLIDER, 8, 8),
             #(entities.GOSPER_GLIDER_GUN, 0, 0),
-            #(entities.GOSPER_GLIDER_GUN, 0, 20)
+            #(entities.GOSPER_GLIDER_GUN, j0, 10)
             #(entities.LINE_OF_20, 0, 10)
         ])
     ui.display_life(game.map)
 
     while FOR_EVER_AND_EVER:
         
-        loop_start = time.time()
+        #loop_start = time.time()
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.pos[0] in range(0, settings.SANDBOX_SX) and\
                     event.pos[1] in range(0, settings.SANDBOX_SY):
 
-                    curr_y = int(event.pos[1] / settings.CELL_SIZE_PX)
-                    curr_x = int(event.pos[0] / settings.CELL_SIZE_PX)
+                    curr_y = int(event.pos[1] / settings.CELL_SPX)
+                    curr_x = int(event.pos[0] / settings.CELL_SPX)
                     game.map[curr_y][curr_x] =  \
                         OPPOSITE_STATE[game.map[curr_y][curr_x]]
                     ui.display_life(game.map)
-
                 else:
                     game.paused = not game.paused
-
             if event.type == pygame.QUIT:
                 return
-
         
         if not game.paused:
             game.populate()
             ui.display_life(game.map)
             
-            #screen.blit(font.render("Iteration {}".format(game.ticks), False, (255, 255, 255)), (0, 0))
         time.sleep(0.1)
 
         #print("Iteration {}. Took {:2f}s".format(game.ticks, time.time() - loop_start))
