@@ -8,7 +8,6 @@ import argparse
 
 sys.path.append(os.path.abspath('./'))
 
-
 from gameoflife import world
 import entities
 
@@ -16,6 +15,7 @@ import entities
 def dump_board(board):
     print('\n'.join(' '.join(str(x) for x in y) for y in board))
     print('-' * (len(board[0]) * 2 - 1))
+
 
 def main_test(args):
     game = world.World()
@@ -29,6 +29,7 @@ def main_test(args):
         print("Generation n°{}:".format(iter + 1))
         dump_board(game.map)
     return 0
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

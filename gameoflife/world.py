@@ -20,6 +20,7 @@ class World(object):
         self.d[0] = 0
         self.d[1] = 1
         self.d[2] = 1
+        self.paused = True
 
 
     def apply_rule(self, x: int, y: int) -> None:
