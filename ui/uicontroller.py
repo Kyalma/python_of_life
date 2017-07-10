@@ -7,11 +7,6 @@ import pygame
 from ui import colors
 from settings import *
 
-LIFE_COLOR = {
-    0: (0, 0, 0),
-    1: (0, 255, 255),
-    2: (255, 255, 0),
-    }
 
 class UIcontroller(object):
     """To display and control the program behaviour"""
@@ -47,7 +42,7 @@ class UIcontroller(object):
                 if board[y][x]:
                     pygame.draw.rect(
                         self.screen,
-                        LIFE_COLOR[board[y][x]],
+                        colors.LIFE_COLOR[board[y][x]],
                         (x * CELL_SIZE_PX, y * CELL_SIZE_PX, CELL_SIZE_PX,  \
                             CELL_SIZE_PX),
                         0)

@@ -1,3 +1,6 @@
+"""
+Color codes
+"""
 
 RGBA = {
     'black': (0, 0, 0),
@@ -13,4 +16,10 @@ HEXA = {
     'green': 0xFF00,
     'blue': 0xFF,
     'white': 0xFFFFFF
+    }
+
+LIFE_COLOR = {
+    0: (0, 0, 0),
+    1: (0, 255, 255),
+    2: (255, 255, 0),
     }
