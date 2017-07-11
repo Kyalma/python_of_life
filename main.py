@@ -29,21 +29,17 @@ def dump_board(board):
 
 
 def thread_main():
-
     game = world.World()
     game.spawn(
         [
             (entities.GLIDER, 8, 8),
             #(entities.GOSPER_GLIDER_GUN, 0, 0),
-            #(entities.GOSPER_GLIDER_GUN, j0, 10)
+            #(entities.GOSPER_GLIDER_GUN, 0, 10)
             #(entities.LINE_OF_20, 0, 10)
         ])
     ui.display_life(game.map)
 
     while FOR_EVER_AND_EVER:
-        
-        #loop_start = time.time()
-
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.pos[0] in range(0, settings.SANDBOX_SX) and\
@@ -60,30 +56,14 @@ def thread_main():
                 return
         
         if not game.paused:
-            t_time = time.time()
+            #t_time = time.time()
             game.populate()
             ui.display_life(game.map)
-            print(time.time() - t_time)
+            #print(time.time() - t_time)
             
         ui.delay()
 
-        #print("Iteration {}. Took {:2f}s".format(game.ticks, time.time() - loop_start))
-
-
-
-def vanilla_pygame():
-
-    all_events = list()
-
-    while FOR_EVER_AND_EVER:
-        all_events.append(pygame.event.get())
-        time.sleep(0.2)
-        print(all_events)
-
 
 if __name__ == "__main__":
-    ui = uicontroller.UIcontroller()
-
-    #vanilla_pygame()
-
-    thread_main()
+    with uicontroller.UIcontroller() as ui:
+        thread_main()

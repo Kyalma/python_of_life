@@ -20,23 +20,24 @@ class UIcontroller(object):
         pygame.display.set_caption("Python of life")
         pygame.draw.rect(
             self.screen,
-            0xAAAAAA,
+            colors.HEXA['grey'],
             (0, SANDBOX_SY, WIN_SX, ACTION_BOX_H),
             0)
         pygame.display.update()
-        text = self.font.render("Click here to pause/resume",
-                                False,
-                                colors.RGBA['black'])
+        text = self.font.render(
+            "Click here to pause/resume",
+            False,
+            colors.RGBA['black'])
         self.screen.blit(
             text,
             (int(WIN_SX / 2 - text.get_width() / 2),
-             int(SANDBOX_SX + ACTION_BOX_H / 2 - text.get_height() / 2)))
+             int(SANDBOX_SY + ACTION_BOX_H / 2 - text.get_height() / 2)))
         pygame.display.update()
         self.loop_ms = 100
 
 
     def display_life(self, board):
-        self.screen.fill(0x00000, (0, 0, SANDBOX_SX, SANDBOX_SY))
+        self.screen.fill(colors.HEXA['black'], (0, 0, SANDBOX_SX, SANDBOX_SY))
         for y in range(CELLS_Y):
             for x in range(CELLS_X):
                 if board[y][x]:
@@ -57,6 +58,12 @@ class UIcontroller(object):
             pygame.time.delay(self.loop_ms)
 
 
-    def __del__(self):
+    def __enter__(self):
+        print("UI opened")
+        return self
+
+
+    def __exit__(self, exc_type, exc_value, traceback):
         pygame.font.quit()
         pygame.quit()
+        print("UI closed")

@@ -15,7 +15,8 @@ HEXA = {
     'red': 0xFF0000,
     'green': 0xFF00,
     'blue': 0xFF,
-    'white': 0xFFFFFF
+    'white': 0xFFFFFF,
+    'grey': 0xAAAAAA
     }
 
 LIFE_COLOR = {

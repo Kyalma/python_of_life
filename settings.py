@@ -2,7 +2,7 @@
 Settings
 """
 
-CELLS_X = 20
+CELLS_X = 25
 CELLS_Y = 20
 
 RANGE_Y = CELLS_Y - 1
