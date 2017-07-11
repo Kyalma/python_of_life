@@ -28,8 +28,14 @@ class UIcontroller(object):
             "Click here to pause/resume",
             False,
             colors.RGBA['black'])
+
+        button_box = pygame.Surface((text.get_width(), text.get_height()))
+        button_box.fill(colors.HEXA['yellow'])
+        button_box.blit(text, (0, 0))
+
+
         self.screen.blit(
-            text,
+            button_box,
             (int(WIN_SX / 2 - text.get_width() / 2),
              int(SANDBOX_SY + ACTION_BOX_H / 2 - text.get_height() / 2)))
         pygame.display.update()
