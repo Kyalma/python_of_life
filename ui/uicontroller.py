@@ -4,7 +4,7 @@ Encapsulated pygame
 
 import pygame
 
-from ui import colors
+from ui import labelbutton, colors, controlbar
 from settings import *
 
 
@@ -14,32 +14,24 @@ class UIcontroller(object):
     def __init__(self, **kwargs):
         pygame.init()
         pygame.font.init()
-        self.font = pygame.font.SysFont("Arial", 15)
+        self.loop_ms = 100
         self.screen = pygame.display.set_mode(
             (WIN_SX, WIN_SY))
         pygame.display.set_caption("Python of life")
-        pygame.draw.rect(
-            self.screen,
-            colors.HEXA['grey'],
-            (0, SANDBOX_SY, WIN_SX, ACTION_BOX_H),
-            0)
+
+        bar = controlbar.ControlBar(
+            (WIN_SX, ACTION_BOX_H),
+            bg_color=colors.HEXA['grey'])
+
+        pause = labelbutton.LabelButton("Pause/Resume", font_size=15, margin=5, padding=10)
+        reset = labelbutton.LabelButton("Reset", font_size=15, margin=5, padding=10)
+
+        bar.add_object(pause)
+        bar.add_object(reset)
+        bar.generate()
+
+        self.screen.blit(bar.box, (0, SANDBOX_SY))
         pygame.display.update()
-        text = self.font.render(
-            "Click here to pause/resume",
-            False,
-            colors.RGBA['black'])
-
-        button_box = pygame.Surface((text.get_width(), text.get_height()))
-        button_box.fill(colors.HEXA['yellow'])
-        button_box.blit(text, (0, 0))
-
-
-        self.screen.blit(
-            button_box,
-            (int(WIN_SX / 2 - text.get_width() / 2),
-             int(SANDBOX_SY + ACTION_BOX_H / 2 - text.get_height() / 2)))
-        pygame.display.update()
-        self.loop_ms = 100
 
 
     def display_life(self, board):
@@ -65,11 +57,9 @@ class UIcontroller(object):
 
 
     def __enter__(self):
-        print("UI opened")
         return self
 
 
     def __exit__(self, exc_type, exc_value, traceback):
         pygame.font.quit()
         pygame.quit()
-        print("UI closed")
