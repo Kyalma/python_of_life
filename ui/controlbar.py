@@ -23,11 +23,23 @@ class ControlBar(object):
 
 
     def add_object(self, new_object):
+        if new_object.size[1] > self.size[1]:
+            raise OverflowError("Button too tall for the controlbar")
         total_lenght = 0
         for obj in self.objects:
             total_lenght += obj['object'].get_width()
         total_lenght += new_object.size[0]
-        begin = (self.size[0] - total_lenght) / 2
+        if total_lenght > self.size[0]:
+            raise OverflowError("Not enough width to add the button")
+
+        if self.align == "center":
+            begin = (self.size[0] - total_lenght) / 2
+        elif self.align == "left":
+            begin = 0
+        elif self.align == "right":
+            begin = self.size[0] - total_lenght
+        else:
+            raise BaseException("Align mode not handled")
 
         curr_length = 0
         for obj in self.objects:
