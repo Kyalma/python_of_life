@@ -14,6 +14,8 @@ class ControlBar(object):
         self.align = kwargs.get('align', 'center')
         self.objects = list()
         self.box = pygame.Surface((size[0], size[1]))
+        for content in kwargs.get('content', []):
+            self.add_object(content)
 
 
     def generate(self):
@@ -28,7 +30,7 @@ class ControlBar(object):
         total_lenght = 0
         for obj in self.objects:
             total_lenght += obj['object'].get_width()
-        total_lenght += new_object.size[0]
+        total_lenght += new_object.get_width()
         if total_lenght > self.size[0]:
             raise OverflowError("Not enough width to add the button")
 

@@ -4,9 +4,9 @@ import time
 import sys
 
 from gameoflife import world
-from ui import uicontroller
+from ui import uicontroller, controlbar, colors, labelbutton
 import entities
-import settings
+from settings import *
 
 
 #LIFE_STATUS_CODE = {
@@ -42,8 +42,8 @@ def thread_main():
     while FOR_EVER_AND_EVER:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.pos[0] in range(0, settings.SANDBOX_SX) and\
-                    event.pos[1] in range(0, settings.SANDBOX_SY):
+                if event.pos[0] in range(0, SANDBOX_SX) and\
+                    event.pos[1] in range(0, SANDBOX_SY):
 
                     curr_y = int(event.pos[1] / settings.CELL_SPX)
                     curr_x = int(event.pos[0] / settings.CELL_SPX)
@@ -56,14 +56,35 @@ def thread_main():
                 return
         
         if not game.paused:
-            #t_time = time.time()
             game.populate()
             ui.display_life(game.map)
-            #print(time.time() - t_time)
             
         ui.delay()
 
 
 if __name__ == "__main__":
     with uicontroller.UIcontroller() as ui:
+        ui.add_controlbars(
+            [
+                {
+                    'object':
+                        controlbar.ControlBar(
+                            (WIN_SX, ACTION_BOX_H),
+                            bg_color=colors.HEXA['grey'],
+                            content=[
+                                labelbutton.LabelButton(
+                                    "Pause/Resume",
+                                    font_size=15,
+                                    margin=5,
+                                    padding=5),
+                                labelbutton.LabelButton(
+                                    "Reset",
+                                    font_size=15,
+                                    margin=5,
+                                    padding=5)
+                                ]),
+                    'pos': (0, SANDBOX_SY)
+                }
+            ])
+        ui.generate()
         thread_main()

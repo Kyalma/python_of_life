@@ -9,3 +9,5 @@
 /__pycache__
 *.user
 /python_of_life.pyproj.user
+/gameoflife/__pycache__
+/ui/__pycache__

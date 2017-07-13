@@ -15,22 +15,21 @@ class UIcontroller(object):
         pygame.init()
         pygame.font.init()
         self.loop_ms = 100
+        self.controlbars = list()
+
+
+    def add_controlbars(self, controlbars: list):
+        for controlb in controlbars:
+            self.controlbars.append(controlb)
+
+
+    def generate(self):
         self.screen = pygame.display.set_mode(
             (WIN_SX, WIN_SY))
         pygame.display.set_caption("Python of life")
-
-        bar = controlbar.ControlBar(
-            (WIN_SX, ACTION_BOX_H),
-            bg_color=colors.HEXA['grey'])
-
-        pause = labelbutton.LabelButton("Pause/Resume", font_size=15, margin=5, padding=10)
-        reset = labelbutton.LabelButton("Reset", font_size=15, margin=5, padding=10)
-
-        bar.add_object(pause)
-        bar.add_object(reset)
-        bar.generate()
-
-        self.screen.blit(bar.box, (0, SANDBOX_SY))
+        for cbar in self.controlbars:
+            cbar['object'].generate()
+            self.screen.blit(cbar['object'].box, cbar['pos'])
         pygame.display.update()
 
 
