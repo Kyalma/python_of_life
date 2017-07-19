@@ -110,3 +110,15 @@ class Pool(object):
         concurrent.futures.wait(tasks)
         self.map = [list(col) for col in self._tmap]
         self.ticks += 1
+
+
+    def pause(self):
+        self.paused = not self.paused
+
+
+    def save_seed(self):
+        pass
+
+
+    def restore_seed(self):
+        pass

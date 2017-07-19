@@ -6,7 +6,7 @@ import itertools
 
 from gameoflife import pool
 from ui import uicontroller, displayedobject, controlbar, colors, labelbutton
-from ui import actions
+
 import entities
 from settings import *
 
@@ -36,11 +36,7 @@ def loop():
             event = ui.events.get_nowait()
             for object in itertools.chain(ui.pools, ui.controlbars):
                 if object.is_in_range(event.pos):
-                    try:
-                        object.interact(event.pos)
-                    except actions.Action as action:
-                        if action.description == "Pause/Resume":
-                            ui.pools[0].obj.paused = not ui.pools[0].obj.paused
+                    object.interact(event.pos)
             ui.events.task_done()
 
         for pool in ui.pools:
@@ -52,15 +48,17 @@ def loop():
 
 
 if __name__ == "__main__":
+    pool1 = pool.Pool(
+        (CELLS_X, CELLS_Y),
+        threads=THREADS,
+        entities=[
+            (entities.GOSPER_GLIDER_GUN, 0, 0),
+        ])
+
     with uicontroller.UIcontroller() as ui:
         ui.add_pool(
             displayedobject.DisplayedObject(
-                pool.Pool(
-                    (CELLS_X, CELLS_Y),
-                    threads=THREADS,
-                    entities=[
-                        (entities.GOSPER_GLIDER_GUN, 0, 0),
-                    ]),
+                pool1,
                 (0, 0),
                 (CELLS_X * CELL_SPX, CELLS_Y * CELL_SPX)))
         ui.add_controlbar(
@@ -71,11 +69,13 @@ if __name__ == "__main__":
                     content=[
                         labelbutton.LabelButton(
                             "Pause/Resume",
+                            pool1.pause,
                             font_size=15,
                             margin=5,
                             padding=5),
                         labelbutton.LabelButton(
                             "Reset",
+                            pool1.restore_seed,
                             font_size=15,
                             margin=5,
                             padding=5)
