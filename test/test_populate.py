@@ -8,7 +8,7 @@ import argparse
 
 sys.path.append(os.path.abspath('./'))
 
-from gameoflife import world
+from gameoflife import pool
 import entities
 
 
@@ -18,7 +18,7 @@ def dump_board(board):
 
 
 def main_test(args):
-    game = world.World()
+    game = pool.Pool()
     game.spawn([
         (entities.LINE_OF_20, 0, 10)
         ])

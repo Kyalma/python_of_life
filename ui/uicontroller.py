@@ -3,8 +3,10 @@ Encapsulated pygame
 """
 
 import pygame
+import queue
 
-from ui import labelbutton, colors, controlbar
+from ui import displayedobject, labelbutton, colors, controlbar
+from gameoflife import pool
 from settings import *
 
 
@@ -16,20 +18,23 @@ class UIcontroller(object):
         pygame.font.init()
         self.loop_ms = 100
         self.controlbars = list()
+        self.pools = list()
+        self.events = queue.Queue()
 
 
-    def add_controlbars(self, controlbars: list):
-        for controlb in controlbars:
-            self.controlbars.append(controlb)
+    def add_controlbar(self, object: displayedobject.DisplayedObject):
+        self.controlbars.append(object)
 
+    def add_pool(self, object: displayedobject.DisplayedObject):
+        self.pools.append(object)
 
     def generate(self):
         self.screen = pygame.display.set_mode(
             (WIN_SX, WIN_SY))
         pygame.display.set_caption("Python of life")
         for cbar in self.controlbars:
-            cbar['object'].generate()
-            self.screen.blit(cbar['object'].box, cbar['pos'])
+            cbar.obj.generate()
+            self.screen.blit(cbar.obj.box, cbar.pos)
         pygame.display.update()
 
 
@@ -44,6 +49,15 @@ class UIcontroller(object):
                         (x * CELL_SPX, y * CELL_SPX, CELL_SPX, CELL_SPX),
                         0)
         pygame.display.update()
+
+
+    def get_mouse_event(self):
+        for event in pygame.event.get(
+            [
+                pygame.MOUSEBUTTONDOWN,
+                #pygame.MOUSEBUTTONUP
+            ]):
+            self.events.put(event)
 
 
     def delay(self, **kwargs):

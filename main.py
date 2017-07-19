@@ -2,9 +2,11 @@ import pygame
 import concurrent.futures
 import time
 import sys
+import itertools
 
-from gameoflife import world
-from ui import uicontroller, controlbar, colors, labelbutton
+from gameoflife import pool
+from ui import uicontroller, displayedobject, controlbar, colors, labelbutton
+from ui import actions
 import entities
 from settings import *
 
@@ -15,12 +17,6 @@ from settings import *
 #    'LIVE': 2,
 #    }
 
-OPPOSITE_STATE = {
-    0: 1,
-    1: 0,
-    2: 0
-    }
-
 FOR_EVER_AND_EVER = True
 
 
@@ -28,63 +24,63 @@ def dump_board(board):
     print('\n'.join(''.join(str(x) for x in y) for y in board))
 
 
-def thread_main():
-    game = world.World()
-    game.spawn(
-        [
-            (entities.GLIDER, 8, 8),
-            #(entities.GOSPER_GLIDER_GUN, 0, 0),
-            #(entities.GOSPER_GLIDER_GUN, 0, 10)
-            #(entities.LINE_OF_20, 0, 10)
-        ])
-    ui.display_life(game.map)
-
+def loop():
     while FOR_EVER_AND_EVER:
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.pos[0] in range(0, SANDBOX_SX) and\
-                    event.pos[1] in range(0, SANDBOX_SY):
+        ui.get_mouse_event()
 
-                    curr_y = int(event.pos[1] / settings.CELL_SPX)
-                    curr_x = int(event.pos[0] / settings.CELL_SPX)
-                    game.map[curr_y][curr_x] =  \
-                        OPPOSITE_STATE[game.map[curr_y][curr_x]]
-                    ui.display_life(game.map)
-                else:
-                    game.paused = not game.paused
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
-        
-        if not game.paused:
-            game.populate()
-            ui.display_life(game.map)
+
+        while not ui.events.empty():
+            event = ui.events.get_nowait()
+            for object in itertools.chain(ui.pools, ui.controlbars):
+                if object.is_in_range(event.pos):
+                    try:
+                        object.interact(event.pos)
+                    except actions.Action as action:
+                        if action.description == "Pause/Resume":
+                            ui.pools[0].obj.paused = not ui.pools[0].obj.paused
+            ui.events.task_done()
+
+        for pool in ui.pools:
+            if not pool.obj.paused:
+                pool.obj.populate()
+            ui.display_life(pool.obj.map)
             
-        ui.delay()
+        #ui.delay()
 
 
 if __name__ == "__main__":
     with uicontroller.UIcontroller() as ui:
-        ui.add_controlbars(
-            [
-                {
-                    'object':
-                        controlbar.ControlBar(
-                            (WIN_SX, ACTION_BOX_H),
-                            bg_color=colors.HEXA['grey'],
-                            content=[
-                                labelbutton.LabelButton(
-                                    "Pause/Resume",
-                                    font_size=15,
-                                    margin=5,
-                                    padding=5),
-                                labelbutton.LabelButton(
-                                    "Reset",
-                                    font_size=15,
-                                    margin=5,
-                                    padding=5)
-                                ]),
-                    'pos': (0, SANDBOX_SY)
-                }
-            ])
+        ui.add_pool(
+            displayedobject.DisplayedObject(
+                pool.Pool(
+                    (CELLS_X, CELLS_Y),
+                    threads=THREADS,
+                    entities=[
+                        (entities.GOSPER_GLIDER_GUN, 0, 0),
+                    ]),
+                (0, 0),
+                (CELLS_X * CELL_SPX, CELLS_Y * CELL_SPX)))
+        ui.add_controlbar(
+            displayedobject.DisplayedObject(
+                controlbar.ControlBar(
+                    (WIN_SX, ACTION_BOX_H),
+                    bg_color=colors.HEXA['grey'],
+                    content=[
+                        labelbutton.LabelButton(
+                            "Pause/Resume",
+                            font_size=15,
+                            margin=5,
+                            padding=5),
+                        labelbutton.LabelButton(
+                            "Reset",
+                            font_size=15,
+                            margin=5,
+                            padding=5)
+                        ]),
+                (0, SANDBOX_SY),
+                (WIN_SX, ACTION_BOX_H)))
         ui.generate()
-        thread_main()
+        loop()

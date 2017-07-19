@@ -1,6 +1,6 @@
 import pygame
 
-from ui import colors
+from ui import colors, actions
 
 class LabelButton(object):
     """description of class"""
@@ -20,6 +20,7 @@ class LabelButton(object):
             border: int | None
             border_color: int
         """
+        self.label = label
         fill = kwargs.get('fill', colors.HEXA['white'])
         font = kwargs.get('font', 'Arial')
         font_size = kwargs.get('font_size', 10)
@@ -55,3 +56,6 @@ class LabelButton(object):
 
     def get_width(self):
         return self.size[0] + self.padding * 2
+
+    def action(self):
+        raise actions.Action(self.label)

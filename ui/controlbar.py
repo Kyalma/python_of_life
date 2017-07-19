@@ -1,5 +1,7 @@
 import pygame
 
+from ui import displayedobject
+
 class ControlBar(object):
     """description of class"""
 
@@ -21,7 +23,7 @@ class ControlBar(object):
     def generate(self):
         self.box.fill(self.bg_color)
         for obj in self.objects:
-            self.box.blit(obj['object'].box, obj['pos'])
+            self.box.blit(obj.obj.box, obj.pos)
 
 
     def add_object(self, new_object):
@@ -29,13 +31,13 @@ class ControlBar(object):
             raise OverflowError("Button too tall for the controlbar")
         total_lenght = 0
         for obj in self.objects:
-            total_lenght += obj['object'].get_width()
+            total_lenght += obj.obj.get_width()
         total_lenght += new_object.get_width()
         if total_lenght > self.size[0]:
             raise OverflowError("Not enough width to add the button")
 
         if self.align == "center":
-            begin = (self.size[0] - total_lenght) / 2
+            begin = int((self.size[0] - total_lenght) / 2)
         elif self.align == "left":
             begin = 0
         elif self.align == "right":
@@ -45,12 +47,11 @@ class ControlBar(object):
 
         curr_length = 0
         for obj in self.objects:
-            obj['pos'] = (begin + curr_length, self.size[1] / 2 - obj['object'].size[1] / 2)
-            curr_length += obj['object'].get_width()
+            obj.pos = (begin + curr_length,
+                       int(self.size[1] / 2 - obj.obj.size[1] / 2))
+            curr_length += obj.obj.get_width()
 
-        self.objects.append(
-            {
-                'object': new_object,
-                'pos': (begin + curr_length,
-                        self.size[1] / 2 - new_object.size[1] / 2)
-            })
+        self.objects.append(displayedobject.DisplayedObject(
+            new_object,
+            (begin + curr_length, int(self.size[1] / 2 - new_object.size[1] / 2)),
+            new_object.size))
