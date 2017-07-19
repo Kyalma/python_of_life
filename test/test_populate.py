@@ -8,6 +8,7 @@ import argparse
 
 sys.path.append(os.path.abspath('./'))
 
+import settings
 from gameoflife import pool
 import entities
 
@@ -18,10 +19,11 @@ def dump_board(board):
 
 
 def main_test(args):
-    game = pool.Pool()
-    game.spawn([
-        (entities.LINE_OF_20, 0, 10)
-        ])
+    game = pool.Pool(
+        (settings.CELLS_X, settings.CELLS_Y),
+        entities=[
+            (entities.LINE_OF_20, 0, 10)
+            ])
     print("Seed:")
     dump_board(game.map)
     for iter in range(args.gen):
