@@ -2,8 +2,8 @@
 Settings
 """
 
-CELLS_X = 40
-CELLS_Y = 40
+CELLS_X = 19
+CELLS_Y = 19
 
 RANGE_Y = CELLS_Y - 1
 RANGE_X = CELLS_X - 1

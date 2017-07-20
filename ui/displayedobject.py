@@ -23,6 +23,9 @@ class DisplayedObject(object):
         return range(self.pos[1], self.pos[1] + self.size[1])
         
 
+    def get_reach(self):
+        return (self.pos[0] + self.size[0], self.pos[1] + self.size[1])
+
     def is_in_range(self, coord: tuple):
         return coord[0] in self.get_range_x() and coord[1] in self.get_range_y()
 

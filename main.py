@@ -52,7 +52,7 @@ if __name__ == "__main__":
         (CELLS_X, CELLS_Y),
         threads=THREADS,
         entities=[
-            (entities.GOSPER_GLIDER_GUN, 0, 0),
+            #(entities.GOSPER_GLIDER_GUN, 0, 0),
         ])
 
     with uicontroller.UIcontroller() as ui:
@@ -76,6 +76,12 @@ if __name__ == "__main__":
                         labelbutton.LabelButton(
                             "Reset",
                             pool1.restore_seed,
+                            font_size=15,
+                            margin=5,
+                            padding=5),
+                        labelbutton.LabelButton(
+                            "Save",
+                            pool1.save_seed,
                             font_size=15,
                             margin=5,
                             padding=5)

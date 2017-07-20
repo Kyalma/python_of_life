@@ -4,6 +4,7 @@ Encapsulated pygame
 
 import pygame
 import queue
+import itertools
 
 from ui import displayedobject, labelbutton, colors, controlbar
 from gameoflife import pool
@@ -29,8 +30,17 @@ class UIcontroller(object):
         self.pools.append(object)
 
     def generate(self):
-        self.screen = pygame.display.set_mode(
-            (WIN_SX, WIN_SY))
+
+        big_x = 0
+        big_y = 0
+        for object in itertools.chain(self.pools, self.controlbars):
+            x, y = object.get_reach()
+            if x > big_x:
+                big_x = x
+            if y > big_y:
+                big_y = y
+
+        self.screen = pygame.display.set_mode((big_x, big_y))
         pygame.display.set_caption("Python of life")
         for cbar in self.controlbars:
             cbar.obj.generate()

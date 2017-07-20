@@ -20,6 +20,7 @@ class Pool(object):
         self.__tmp = [0 for x in range(self.cells_x)]
         self.map = [list(self.__tmp) for y in range(self.cells_y)]
         self._tmap = [list(self.__tmp) for y in range(self.cells_y)]
+        self.seed = list()
 
         ## For threading purpose ##
         self._nbr = [list(self.__tmp) for y in range(self.cells_y)]
@@ -43,6 +44,7 @@ class Pool(object):
         ## add some entities to the seed ##
         if 'entities' in kwargs:
             self.spawn(kwargs['entities'])
+        self.save_seed()
 
 
     def apply_rule(self, x: int, y: int) -> None:
@@ -108,7 +110,7 @@ class Pool(object):
                 for y in range(self.cells_y)
             ]
         concurrent.futures.wait(tasks)
-        self.map = [list(col) for col in self._tmap]
+        self.map = [list(row) for row in self._tmap]
         self.ticks += 1
 
 
@@ -117,8 +119,8 @@ class Pool(object):
 
 
     def save_seed(self):
-        pass
+        self.seed = [list(row) for row in self.map]
 
 
     def restore_seed(self):
-        pass
+        self.map = [list(row) for row in self.seed]
